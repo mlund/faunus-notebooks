@@ -3,7 +3,7 @@
 using namespace Faunus;
 using namespace Faunus::Potential;
 
-typedef Space<Geometry::Cuboid,PointParticle> Tspace;
+typedef Space<Geometry::Cuboidslit,PointParticle> Tspace;
 
 int main() {
   InputMap mcp("surf.json");                    // open user input file
@@ -38,7 +38,7 @@ int main() {
     sys.checkDrift(Energy::systemEnergy(spc,pot,spc.p)); // calc. energy drift
     cout << loop.timing();
   }                                             // end of macro loop
-  FormatPQR::save("confout.pqr", spc.p);        // PQR snapshot for VMD etc.
+  FormatPQR::save("confout.pqr", spc.p, spc.geo.len);
 
   cout << "# System net charge = " << netCharge( spc.p.begin(), spc.p.end() ) << endl;
 
