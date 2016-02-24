@@ -40,6 +40,8 @@ int main() {
   }                                             // end of macro loop
   FormatPQR::save("confout.pqr", spc.p);        // PQR snapshot for VMD etc.
 
+  cout << "# System net charge = " << netCharge( spc.p.begin(), spc.p.end() ) << endl;
+
   cout << loop.info() + sys.info() + mv.info();
 
   spc.save("state");                            // final simulation state
