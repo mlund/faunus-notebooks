@@ -4,13 +4,16 @@ using namespace Faunus;
 using namespace Faunus::Potential;
 
 typedef Space<Geometry::Cuboidslit,PointParticle> Tspace;
+typedef CombinedPairPotential<Coulomb,LennardJonesLB> Tpairpot;
 
 int main() {
   InputMap mcp("surf.json");                    // open user input file
   Tspace spc(mcp);                              // simulation space
   auto pot =
-  Energy::Nonbonded<Tspace,CoulombLJ>(mcp)      // hamiltonian
+  Energy::Nonbonded<Tspace,Tpairpot>(mcp)       // hamiltonian
   + Energy::EquilibriumEnergy<Tspace>(mcp);
+
+  pot.first.pairpot.second.customParameters(mcp["customlj"]);
 
   pot.setSpace(spc);                            // share space w. hamiltonian
 
