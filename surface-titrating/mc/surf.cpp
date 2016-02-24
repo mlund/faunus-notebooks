@@ -38,11 +38,10 @@ int main() {
     sys.checkDrift(Energy::systemEnergy(spc,pot,spc.p)); // calc. energy drift
     cout << loop.timing();
   }                                             // end of macro loop
+
+  cout << "System net charge = " << netCharge( spc.p.begin(), spc.p.end() ) << endl;
+  cout << loop.info() << sys.info() << mv.info();
+
   FormatPQR::save("confout.pqr", spc.p, spc.geo.len);
-
-  cout << "# System net charge = " << netCharge( spc.p.begin(), spc.p.end() ) << endl;
-
-  cout << loop.info() + sys.info() + mv.info();
-
   spc.save("state");                            // final simulation state
 }
