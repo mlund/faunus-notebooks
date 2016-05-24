@@ -6,7 +6,6 @@ using namespace Faunus::Potential;
 typedef Space<Geometry::Sphere> Tspace;
 typedef CombinedPairPotential<Coulomb, LennardJonesLB> Tpairpot;
 
-
 int main() {
   InputMap mcp("titrate.json");
   Tspace spc(mcp);
