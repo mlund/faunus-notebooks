@@ -30,7 +30,7 @@ int main() {
   while ( loop[0] ) {
     while ( loop[1] ) {
       sys+=mv.move();                           // move!
-      widom1.sample(spc,pot,1);
+      //widom1.sample(spc,pot,1);
     }                                           // end of micro loop
     sys.checkDrift(Energy::systemEnergy(spc,pot,spc.p)); // calc. energy drift
     cout << loop.timing();
@@ -39,7 +39,7 @@ int main() {
   FormatPQR::save("confout.pqr", spc.p);        // PQR snapshot for VMD etc.
   spc.save("state");                            // final simulation state
 
-  cout << loop.info() + sys.info() + mv.info() + widom1.info();
+  cout << loop.info() + sys.info() + mv.info();// + widom1.info();
   
   std::ofstream o("move_out.json");
   o << std::setw(4) << mv.json() << endl;
