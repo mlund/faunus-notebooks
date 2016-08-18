@@ -43,7 +43,10 @@ int main() {
     cout << loop.timing();
   }                                             // end of macro loop
 
-  FormatPQR::save("confout.pqr", spc.p);        // PQR snapshot for VMD etc.
+  FormatPQR::save("confout.pqr", spc.p, spc.geo.len);    // PQR snapshot for VMD etc.
+  FormatGRO gro;
+  gro.len=spc.geo.len.x();
+  gro.save("confout.gro", spc.p);
   spc.save("state");                            // final simulation state
 
   cout << loop.info() + sys.info() + mv.info();// + widom1.info();
