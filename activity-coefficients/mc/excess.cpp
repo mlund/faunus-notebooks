@@ -9,16 +9,19 @@ typedef CombinedPairPotential<Coulomb, LennardJonesLB> Tpairpot;
 int main() {
   InputMap mcp("excess.json");                  // open user input file
   Tspace spc(mcp);                              // simulation space
-  Energy::Nonbonded<Tspace,Tpairpot> pot(mcp);  // hamiltonian
+
+  auto pot = Energy::Nonbonded<Tspace,Tpairpot>(mcp)
+    + Energy::EquilibriumEnergy<Tspace>(mcp);
   pot.setSpace(spc);                            // share space w. hamiltonian
+
   FormatXTC xtc(1000);
 
-  int xtc_freq = mcp["xtc_freq"] | 1000;        // frequency to save as XTC
+  int xtc_freq = mcp["xtc_freq"] | 1e100;        // frequency to save as XTC
 
   spc.load("state",Tspace::RESIZE);             // load old config. from disk (if any)
 
   // Two different Widom analysis methods
-  double lB = pot.pairpot.first.bjerrumLength();// get bjerrum length
+  double lB = pot.first.pairpot.first.bjerrumLength();// get bjerrum length
 
   Move::Propagator<Tspace> mv(mcp,pot,spc);
 
@@ -44,6 +47,7 @@ int main() {
   }                                             // end of macro loop
 
   FormatPQR::save("confout.pqr", spc.p, spc.geo.len);    // PQR snapshot for VMD etc.
+  FormatAAM::save("confout.aam", spc.p);
   FormatGRO gro;
   gro.len=spc.geo.len.x();
   gro.save("confout.gro", spc.p);
