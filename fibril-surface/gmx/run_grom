@@ -1,0 +1,40 @@
+#!/usr/bin/env infinity-env
+
+# number of total runs
+TOTAL_RUNS=20
+
+# ------------------------------------------------------------------------------
+echo Started at `date`
+module add gromacs
+
+if [ -z "$_CURR_RUN" ]; then
+   # first run
+   _CURR_RUN=1
+    grompp -f md300.mdp -c orderedrod.pdb -p topol.top -o md1.tpr
+    mdrun -s md${_CURR_RUN}.tpr  -deffnm md${_CURR_RUN} -cpi md$[_CURR_RUN-1].cpt
+    tpbconv -s md${_CURR_RUN}.tpr -extend 1000 -o md$[_CURR_RUN + 1].tpr 
+else
+    mdrun -s md${_CURR_RUN}.tpr  -deffnm md${_CURR_RUN} -cpi md$[_CURR_RUN-1].cpt
+    tpbconv -s md${_CURR_RUN}.tpr -extend 1000 -o md$[_CURR_RUN + 1].tpr 
+fi
+
+echo Finished at `date`
+
+# is the end?
+_CURR_RUN=$(($_CURR_RUN + 1))
+if [ ${_CURR_RUN} -le $TOTAL_RUNS ]; then
+    # resubmit job
+    ssh -x "$INF_JOB_MACHINE" "
+    site activate $AMS_SITE; \
+    cd $INF_JOB_PATH; \
+    export _CURR_RUN=${_CURR_RUN}; \
+    export INF_EXTERNAL_VARIABLES="_CURR_RUN"; \
+    export INF_EXTERNAL_NAME_SUFFIX=\"#`printf %03d ${_CURR_RUN}`\";\
+    export INF_EXTERNAL_START_AFTER=$PBS_JOBID; \
+    pconfirmsubmit NO; \
+    pignoreruntimefiles YES; \
+    psubmit $INF_ARG_DESTINATION $INF_ARG_JOB $INF_ARG_RESOURCES; "
+
+fi
+
+exit
