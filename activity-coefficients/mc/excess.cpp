@@ -14,19 +14,13 @@ int main() {
     + Energy::EquilibriumEnergy<Tspace>(mcp);
   pot.setSpace(spc);                            // share space w. hamiltonian
 
-  FormatXTC xtc(1000);
-
-  int xtc_freq = mcp["xtc_freq"] | 1e100;        // frequency to save as XTC
-
   spc.load("state",Tspace::RESIZE);             // load old config. from disk (if any)
 
   // Two different Widom analysis methods
   double lB = pot.first.pairpot.first.bjerrumLength();// get bjerrum length
 
+  Analysis::CombinedAnalysis analyze(mcp,pot,spc);
   Move::Propagator<Tspace> mv(mcp,pot,spc);
-
-  EnergyDrift sys;                              // class for tracking system energy drifts
-  sys.init(Energy::systemEnergy(spc,pot,spc.p));// store initial total system energy
 
   cout << atom.info() + spc.info() + pot.info() + "\n";
 
@@ -34,26 +28,18 @@ int main() {
   while ( loop[0] ) {
     while ( loop[1] ) {
 
-      sys+=mv.move();                           // move!
-
-      if ( loop.innerCount() % xtc_freq == 0 ) {
-        xtc.setbox( spc.geo.len );
-        xtc.save( "traj.xtc", spc.p );
-      }
-
+      mv.move();                           // move!
+      analyze.sample();
+  
     }                                           // end of micro loop
-    sys.checkDrift(Energy::systemEnergy(spc,pot,spc.p)); // calc. energy drift
     cout << loop.timing();
   }                                             // end of macro loop
 
-  FormatPQR::save("confout.pqr", spc.p, spc.geo.len);    // PQR snapshot for VMD etc.
-  FormatAAM::save("confout.aam", spc.p);
   FormatGRO gro;
   gro.len=spc.geo.len.x();
   gro.save("confout.gro", spc.p);
-  spc.save("state");                            // final simulation state
 
-  cout << loop.info() + sys.info() + mv.info();// + widom1.info();
+  cout << loop.info() + mv.info();// + widom1.info();
   
   std::ofstream o("move_out.json");
   o << std::setw(4) << mv.json() << endl;
