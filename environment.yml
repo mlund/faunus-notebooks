@@ -1,0 +1,9 @@
+name: faunus-notebooks
+channels:
+  - nodefaults
+  - conda-forge
+dependencies:
+  - ipywidgets
+  - numpy
+  - scipy
+  - matplotlib
